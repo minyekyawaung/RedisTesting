@@ -36,7 +36,7 @@ public class HelloWorldController {
            // System.out.println(attemptsrequest);
             String host = "redis://default:ApeBBPaOxbyw8C9HCFxFucFw6laxBaHl@redis-14790.c100.us-east-1-4.ec2.cloud.redislabs.com:14790";
             int port = 0;
-            int intervalTimeInSeconds = 10;
+            int intervalTimeInSeconds = 5;
             String redisKey = "TransactionPayload";
             //String requestId = "1";
 
