@@ -92,6 +92,7 @@ public class HelloWorldController {
                 //JwtUtil jwtUtil = new JwtUtil();
                 //response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
                 //jwtUtil.setErrorResponse(response, "YB10001", "Too many attempts, please try again later", "Too many attempts, please try again later");
+                System.out.println(currentDateTime + " Too Many Attempts");
                 return currentDateTime + " Too Many Attempts";
             }
         } catch (Exception e) {
@@ -107,7 +108,7 @@ public class HelloWorldController {
         try {
 
             //log.info("request Id = > " + Key + " CreateData Fun => " + "start");
-            System.out.println("request Id = > " + Key + " CreateData Fun => " + "start");
+            //System.out.println("request Id = > " + Key + " CreateData Fun => " + "start");
             List<Map<String, Object>> dataList = null;
 
             Date date = new Date();
@@ -130,34 +131,34 @@ public class HelloWorldController {
 
 
 
-            System.out.println("checking redisKey");
+           // System.out.println("checking redisKey");
             // Get the existing JSON list from Redis
             String existingJsonList = jedis.get(redisKey);
 
-            System.out.println("existingJsonList " + existingJsonList);
+           // System.out.println("existingJsonList " + existingJsonList);
 
             if (existingJsonList != null) {
-                System.out.println("Insert");
+                //System.out.println("Insert");
                 dataList = new Gson().fromJson(existingJsonList, List.class);
             } else {
-                System.out.println("Initialized");
+               // System.out.println("Initialized");
                 dataList = new ArrayList<>();
 
             }
-            System.out.println("newRecordJson " + newRecordJson);
+           // System.out.println("newRecordJson " + newRecordJson);
 
             Map<String, Object> newRecordMap = new Gson().fromJson(newRecordJson, Map.class);
 
-            System.out.println("newRecordMap " + newRecordMap);
+            //System.out.println("newRecordMap " + newRecordMap);
             // Add the new record to the data list
             dataList.add(newRecordMap);
 
-            System.out.println(dataList.size());
+            //System.out.println(dataList.size());
 
             // Convert the updated data list to JSON
             String updatedJsonList = new Gson().toJson(dataList);
 
-            System.out.println(updatedJsonList);
+            //System.out.println(updatedJsonList);
 
             // Store the updated JSON list back to Redis
             jedis.set(redisKey, updatedJsonList);
@@ -171,11 +172,11 @@ public class HelloWorldController {
 
         } catch (Exception e) {
             //log.error("request Id => " + Key + " => " + e.toString());
-            System.out.println("request Id => " + Key + " => " + e.toString());
+            //System.out.println("request Id => " + Key + " => " + e.toString());
             jedis.close();
 
         } finally {
-            System.out.println("request Id => finally");
+            //System.out.println("request Id => finally");
             jedis.close();
         }
 
@@ -185,13 +186,13 @@ public class HelloWorldController {
     public static List<TransactionPayload> GetDateByRequestIDAndPaymentType(String _key, String _paymentType, Jedis jedis, String redisKey) {
         try {
            // log.info("request Id = > " + _key + " CheckIntervalTime Fun => " + "start");
-            System.out.println("request Id = > " + _key + " GetDateByRequestIDAndPaymentType => " + "start");
+            //System.out.println("request Id = > " + _key + " GetDateByRequestIDAndPaymentType => " + "start");
 
             Gson gson = new Gson();
             ObjectMapper mapper = new ObjectMapper();
 
             String jsonString = jedis.get(redisKey);
-            System.out.println("jsonString " + jsonString);
+            //System.out.println("jsonString " + jsonString);
             List<TransactionPayload> existRequests = null;
             if (jsonString != null)
             {
@@ -222,11 +223,11 @@ public class HelloWorldController {
         try {
 
             //log.info("request Id = > " + requestId + " RemoveExpireData Fun => " + "start");
-            System.out.println("request Id = > " + requestId + " RemoveExpireData Fun => " + "start");
+            //System.out.println("request Id = > " + requestId + " RemoveExpireData Fun => " + "start");
             Gson gson = new Gson();
             ObjectMapper mapper = new ObjectMapper();
             String jsonString = jedis.get(redisKey);
-            System.out.println("jsonString "+jsonString);
+            //System.out.println("jsonString "+jsonString);
 
             if (jsonString != null)
             {
@@ -236,11 +237,11 @@ public class HelloWorldController {
                     Date expireddate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(transactionPayload.getExpiredAt());
                     Date currentDateTime = GetDateUtil.getCurrentDateTime();
                     if (currentDateTime.compareTo(expireddate) > 0) {
-                        System.out.println("request Id = > " + requestId + " RemoveExpireData Fun => " + "currentDateTime occurs after expireddate");
+                        //System.out.println("request Id = > " + requestId + " RemoveExpireData Fun => " + "currentDateTime occurs after expireddate");
                         //log.info("request Id = > " + requestId + " RemoveExpireData Fun => " + "currentDateTime occurs after expireddate");
 
                     } else {
-                        System.out.println("request Id = > " + requestId + " RemoveExpireData Fun => " + "currentDateTime occurs before expireddate");
+                        //System.out.println("request Id = > " + requestId + " RemoveExpireData Fun => " + "currentDateTime occurs before expireddate");
                         //log.info("request Id = > " + requestId + " RemoveExpireData Fun => " + "currentDateTime occurs before expireddate");
                         TransactionPayloadupdate.add(transactionPayload);
                     }
@@ -257,15 +258,15 @@ public class HelloWorldController {
                 jedis.set(redisKey, updatedJsonString);
 
                 //log.info("request Id = > " + requestId + " RemoveExpireData Fun => " + "Remove Expired Data");
-                System.out.println("request Id = > " + requestId + " RemoveExpireData Fun => " + "Remove Expired Data");
+               //System.out.println("request Id = > " + requestId + " RemoveExpireData Fun => " + "Remove Expired Data");
             }
 
 
-            System.out.println("json is null");
+            //System.out.println("json is null");
 
             jedis.close();
         } catch (Exception e) {
-            System.out.println("request Id = > " + requestId + " RemoveExpireData Fun => " + e.toString());
+           // System.out.println("request Id = > " + requestId + " RemoveExpireData Fun => " + e.toString());
             //log.error("request Id = > " + requestId + " RemoveExpireData Fun => " + e.toString());
             jedis.close();
         } finally {
@@ -281,8 +282,8 @@ public class HelloWorldController {
                                            ) {
         String expireDate = "";
 
-        System.out.println("CheckTooManyAttempt start");
-        System.out.println(requestId);
+        //System.out.println("CheckTooManyAttempt start");
+        //System.out.println(requestId);
         if (requestId != null && !requestId.isEmpty()) {
             // Replace with your payload Object
             Gson gson = new GsonBuilder()
@@ -292,7 +293,7 @@ public class HelloWorldController {
            // PaymentRequest paymentRequest = gson.fromJson(((CustomHttpServletRequestWrapper) requestWrapper).getBody(), PaymentRequest.class);
             //region Log
            // log.info("To trace >>-- : -- requestId : " + requestId + " at path : " + path + " with payload : " + paymentRequest + " at timeInMilliSeconds : " + System.currentTimeMillis());
-            System.out.println("To trace >>-- : -- requestId : " + requestId + " with payload : " + "Other Account Transfer" + " at timeInMilliSeconds : " + System.currentTimeMillis());
+           // System.out.println("To trace >>-- : -- requestId : " + requestId + " with payload : " + "Other Account Transfer" + " at timeInMilliSeconds : " + System.currentTimeMillis());
             //endregion
             Date currentDateTime = GetDateUtil.getCurrentDateTime();
 
@@ -305,7 +306,7 @@ public class HelloWorldController {
 
                     //Get Data by RequestID & Payment Type
                     List<TransactionPayload> existRequests = GetDateByRequestIDAndPaymentType(requestId, paymentType, jedis, redisKey);
-                    System.out.println("existsRequests "+ existRequests);
+                    //System.out.println("existsRequests "+ existRequests);
 
 
                     if (existRequests != null && existRequests.size() > 0) {
@@ -324,7 +325,7 @@ public class HelloWorldController {
 
                     jedis.close();
                 } catch (Exception e) {
-                    System.out.println(e.toString());
+                    //System.out.println(e.toString());
                     jedis.close();
                 } finally {
                     jedis.close();
@@ -332,6 +333,7 @@ public class HelloWorldController {
 
 
         }
+        System.out.println(expireDate + " OK");
         return expireDate + " OK";
     }
 
