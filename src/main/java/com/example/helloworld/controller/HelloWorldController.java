@@ -28,12 +28,6 @@ import java.util.stream.Collectors;
 @RestController
 public class HelloWorldController {
 
-    @GetMapping("/Hello")
-    public String Hello(@RequestParam String test)
-    {
-        return test;
-    }
-
     @GetMapping("/CheckTooManyAttempts")
     public String CheckTooManyAttempts(@RequestParam String requestId,@RequestParam String paymentType)
     {
@@ -57,30 +51,7 @@ public class HelloWorldController {
         }
         return "OK";
     }
-//    @GetMapping("/CheckTooManyAttempts")
-//    public String CheckTooManyAttempts(@RequestBody Attemptsrequest attemptsrequest ) {
-//
-//        try {
-//            System.out.println("start");
-//            System.out.println(attemptsrequest);
-//           String host = "redis://default:ApeBBPaOxbyw8C9HCFxFucFw6laxBaHl@redis-14790.c100.us-east-1-4.ec2.cloud.redislabs.com:14790";
-//           int port = 0;
-//           int intervalTimeInSeconds = 10;
-//           String redisKey = "TransactionPayload";
-//           //String requestId = "1";
-//
-//            return CheckTooManyAttempt(attemptsrequest.getRequestId(), attemptsrequest.getPaymentType(), host,
-//                      redisKey,
-//                    intervalTimeInSeconds
-//                    );
-//
-//        } catch (Exception e) {
-//            System.out.println(e.toString());
-//
-//        }
-//        return "OK";
-//
-//    }
+
 
 
     public static String CheckIntervalTime(List<TransactionPayload> existRequests, Date currentDateTime,
@@ -121,7 +92,7 @@ public class HelloWorldController {
                 //JwtUtil jwtUtil = new JwtUtil();
                 //response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
                 //jwtUtil.setErrorResponse(response, "YB10001", "Too many attempts, please try again later", "Too many attempts, please try again later");
-                return "Too Many Attempts";
+                return currentDateTime + " Too Many Attempts";
             }
         } catch (Exception e) {
             //region LogError
@@ -131,7 +102,7 @@ public class HelloWorldController {
         return "OK";
     }
 
-    public static void CreateData(String Key, String PaymentType, int intervalTimeInSeconds, Jedis jedis, String redisKey) {
+    public static String CreateData(String Key, String PaymentType, int intervalTimeInSeconds, Jedis jedis, String redisKey) {
 
         try {
 
@@ -194,6 +165,10 @@ public class HelloWorldController {
             //log.info("request Id => " + Key + " CreateData Fun => " + " Create Data in Redis");
 
             jedis.close();
+
+            return expiredAtDate;
+
+
         } catch (Exception e) {
             //log.error("request Id => " + Key + " => " + e.toString());
             System.out.println("request Id => " + Key + " => " + e.toString());
@@ -204,6 +179,7 @@ public class HelloWorldController {
             jedis.close();
         }
 
+        return "";
     }
 
     public static List<TransactionPayload> GetDateByRequestIDAndPaymentType(String _key, String _paymentType, Jedis jedis, String redisKey) {
@@ -303,6 +279,7 @@ public class HelloWorldController {
                                            String redisKey,
                                            int intervalTimeInSeconds
                                            ) {
+        String expireDate = "";
 
         System.out.println("CheckTooManyAttempt start");
         System.out.println(requestId);
@@ -318,7 +295,6 @@ public class HelloWorldController {
             System.out.println("To trace >>-- : -- requestId : " + requestId + " with payload : " + "Other Account Transfer" + " at timeInMilliSeconds : " + System.currentTimeMillis());
             //endregion
             Date currentDateTime = GetDateUtil.getCurrentDateTime();
-           // if (paymentRequest != null) {
 
                 Jedis jedis = new Jedis(host);
 
@@ -341,7 +317,7 @@ public class HelloWorldController {
                         } else {
                             //Create Data by request ID and Payment Type
                            // System.out.println("CreateData");
-                            CreateData(requestId, paymentType, intervalTimeInSeconds, jedis, redisKey);
+                           expireDate =  CreateData(requestId, paymentType, intervalTimeInSeconds, jedis, redisKey);
                         }
 
 
@@ -354,9 +330,9 @@ public class HelloWorldController {
                     jedis.close();
                 }
 
-            //}
+
         }
-        return "OK";
+        return expireDate + " OK";
     }
 
     private static String serializeToJson(TransactionPayload transactionPayload) {
